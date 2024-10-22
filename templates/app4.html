@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('static/img1.jpg'); /* Path to your background image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .main-section {
+            margin-top: 50px;
+            min-height: 100vh;
+            backdrop-filter: blur(5px);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .app-title {
+            text-align: center;
+            font-size: 2rem;
+            color: black;
+            font-weight: bold;
+        }
+        .card {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px #28a745;
+        }
+        .result-card {
+            margin-top: 30px;
+        }
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .submit-btn:hover {
+            background-color: #28a745;
+        }
+        /* New Styles */
+        .card h3, .card h5 {
+            color: #28a745; /* Attractive header color */
+        }
+        .text-success {
+            color: #28a745 !important; /* Consistent success color */
+        }
+        .modal-header {
+            background-color: #28a745;
+            color: white;
+        }
+        .modal-body button {
+            margin-bottom: 10px;
+            background-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Container -->
+    <div class="container main-section d-flex justify-content-center align-items-center">
+        <div class="col-md-6">
+            <div class = "header">
+                <span class = "app-title text-center">AgroSmart</span>
+                </div>
+            <!-- Login Card -->
+            <div class="card" id="loginCard">
+                <h3 class="text-center">Login</h3>
+                <p class="text-center">Please enter your credentials.</p>
+
+                <!-- Login Form -->
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" placeholder="Enter Username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Enter Password" required>
+                    </div>
+                    <button type="submit" class="btn submit-btn btn-block">Login</button>
+                </form>
+                <p class="text-center mt-3" id="accountMessage"></p>
+                <p class="text-center">Don't have an account? <a href="#" id="showRegistration">Register here</a></p>
+            </div>
+
+
+            <!-- Registration Card -->
+            <div class="card d-none" id="registrationCard">
+                <h3 class="text-center">Create an Account</h3>
+                <p class="text-center">Please fill in your details to create an account.</p>
+
+                <!-- Registration Form -->
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="regUsername">Username</label>
+                        <input type="text" class="form-control" id="regUsername" placeholder="Enter Username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" class="form-control" id="regPassword" placeholder="Enter Password" required>
+                        <small class="form-text text-muted">
+                            Password must be at least 8 characters long, contain at least one uppercase letter, one digit, and one special character (@#$%&*).
+                        </small>
+                    </div>
+                    <button type="submit" class="btn submit-btn btn-block">Create Account</button>
+                </form>
+                <p class="text-center mt-3" id="registrationMessage"></p>
+                 <!-- Language Selection Dropdown (Moved Here) -->
+            </div>
+
+        <!-- Language Selection Dropdown -->
+
+            <!-- Crop Recommendation Section -->
+            <div class="card d-none" id="cropRecommendationCard">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <label for="languageSelect" id="labelLanguage">Select Language:</label>
+                    <select id="languageSelect" class="form-control" onchange="changeLanguage(this.value)">
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="te">తెలుగు</option>
+                        <option value="ta">தமிழ்</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="kn">ಕನ್ನಡ</option>
+                    </select>
+                </div>
+            </div>
+                <h3 class="text-center" id="cropRecTitle">Crop Recommendation System</h3>
+                <p class="text-center" id="cropRecDesc">Enter the required soil and environmental data to get the most suitable crop for your land.</p>
+
+                <!-- Form for user input -->
+                <form id="cropForm">
+                    <div class="form-group">
+                        <label for="nitrogen" id="labelNitrogen">Nitrogen (N)</label>
+                        <input type="number" class="form-control" id="nitrogen" placeholder="Enter Nitrogen value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phosphorus" id="labelPhosphorus">Phosphorus (P)</label>
+                        <input type="number" class="form-control" id="phosphorus" placeholder="Enter Phosphorus value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="potassium" id="labelPotassium">Potassium (K)</label>
+                        <input type="number" class="form-control" id="potassium" placeholder="Enter Potassium value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="temperature" id="labelTemperature">Temperature (°C)</label>
+                        <input type="number" class="form-control" id="temperature" placeholder="Enter Temperature value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="humidity" id="labelHumidity">Humidity (%)</label>
+                        <input type="number" class="form-control" id="humidity" placeholder="Enter Humidity value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ph" id="labelPh">pH</label>
+                        <input type="number" class="form-control" id="ph" step="0.01" placeholder="Enter pH value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rainfall" id="labelRainfall">Rainfall (mm)</label>
+                        <input type="number" class="form-control" id="rainfall" placeholder="Enter Rainfall value" required>
+                    </div>
+                    <button type="submit" class="btn submit-btn btn-block" id="getRecommendedCropButton">Get Recommended Crop</button>
+                </form>
+            </div>
+
+            <!-- Result Display Section -->
+            <div class="card result-card d-none" id="resultCard">
+                <h5 class="text-center">Recommended Crop:</h5>
+                <p id="recommendedCrop" class="text-center text-success font-weight-bold"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Language Selection Modal -->
+
+
+    <script>
+        let accounts = []; // Array to store user accounts
+        let selectedLanguage = 'en'; // Default language
+        const translations = {
+            en: {
+                cropRecTitle: "Crop Recommendation System",
+                cropRecDesc: "Enter the required soil and environmental data to get the most suitable crop for your land.",
+                labelNitrogen: "Nitrogen (N)",
+                labelPhosphorus: "Phosphorus (P)",
+                labelPotassium: "Potassium (K)",
+                labelTemperature: "Temperature (°C)",
+                labelHumidity: "Humidity (%)",
+                labelPh: "pH",
+                labelRainfall: "Rainfall (mm)",
+                placeholderNitrogen: "Enter Nitrogen value",
+                placeholderPhosphorus: "Enter Phosphorus value",
+                placeholderPotassium: "Enter Potassium value",
+                placeholderTemperature: "Enter Temperature value",
+                placeholderHumidity: "Enter Humidity value",
+                placeholderPh: "Enter pH value",
+                placeholderRainfall: "Enter Rainfall value",
+                recommendedCropText: "Get Recommended Crop"
+            },
+            te: {
+                cropRecTitle: "పంట సిఫారసు వ్యవస్థ",
+                cropRecDesc: "మీ భూమికి అత్యంత అనుకూలమైన పంటను పొందడానికి మట్టిని మరియు వాతావరణ సమాచారాన్ని నమోదు చేయండి.",
+                labelNitrogen: "నైట్రోజన్ (N)",
+                labelPhosphorus: "ఫాస్ఫరస్ (P)",
+                labelPotassium: "పొటాషియం (K)",
+                labelTemperature: "ఉష్ణోగ్రత (°C)",
+                labelHumidity: "అవిరళత (%)",
+                labelPh: "pH",
+                labelRainfall: "ముంపు (mm)",
+                placeholderNitrogen: "నైట్రోజన్ విలువను నమోదు చేయండి",
+                placeholderPhosphorus: "ఫాస్ఫరస్ విలువను నమోదు చేయండి",
+                placeholderPotassium: "పొటాషియం విలువను నమోదు చేయండి",
+                placeholderTemperature: "ఉష్ణోగ్రత విలువను నమోదు చేయండి",
+                placeholderHumidity: "అవిరళత విలువను నమోదు చేయండి",
+                placeholderPh: "pH విలువను నమోదు చేయండి",
+                placeholderRainfall: "ముంపు విలువను నమోదు చేయండి",
+                recommendedCropText: "సిఫారసు పంట పొందండి"
+            },
+            ta: {
+                cropRecTitle: "தாவர பரிந்துரை முறை",
+                cropRecDesc: "உங்கள் நிலத்திற்கு மிகவும் பொருத்தமான தாவரத்தை பெற தேவைப்படும் மண்ணும் சுற்றுப்புறத் தகவலையும் உள்ளிடவும்.",
+                labelNitrogen: "நைட்ரஜன் (N)",
+                labelPhosphorus: "பொதுத்தம் (P)",
+                labelPotassium: "கொதிகள் (K)",
+                labelTemperature: "உஷ்ணநிலை (°C)",
+                labelHumidity: "ஊதியப்பரிமாணம் (%)",
+                labelPh: "pH",
+                labelRainfall: "மழை (mm)",
+                placeholderNitrogen: "நைட்ரஜன் மதிப்பை உள்ளிடவும்",
+                placeholderPhosphorus: "பொதுத்தம் மதிப்பை உள்ளிடவும்",
+                placeholderPotassium: "கொதிகள் மதிப்பை உள்ளிடவும்",
+                placeholderTemperature: "உஷ்ணநிலை மதிப்பை உள்ளிடவும்",
+                placeholderHumidity: "ஊதியப்பரிமாணம் மதிப்பை உள்ளிடவும்",
+                placeholderPh: "pH மதிப்பை உள்ளிடவும்",
+                placeholderRainfall: "மழை மதிப்பை உள்ளிடவும்",
+                recommendedCropText: "பரிந்துரை செய்யப்படும் தாவரத்தைப் பெறுங்கள்"
+            },
+            hi: {
+                cropRecTitle: "फसल सिफारिश प्रणाली",
+                cropRecDesc: "आपकी भूमि के लिए सबसे उपयुक्त फसल प्राप्त करने के लिए आवश्यक मिट्टी और पर्यावरणीय डेटा दर्ज करें।",
+                labelNitrogen: "नाइट्रोजन (N)",
+                labelPhosphorus: "फास्फोरस (P)",
+                labelPotassium: "पोटेशियम (K)",
+                labelTemperature: "तापमान (°C)",
+                labelHumidity: "आर्द्रता (%)",
+                labelPh: "pH",
+                labelRainfall: "बारिश (mm)",
+                placeholderNitrogen: "नाइट्रोजन मान दर्ज करें",
+                placeholderPhosphorus: "फास्फोरस मान दर्ज करें",
+                placeholderPotassium: "पोटेशियम मान दर्ज करें",
+                placeholderTemperature: "तापमान मान दर्ज करें",
+                placeholderHumidity: "आर्द्रता मान दर्ज करें",
+                placeholderPh: "pH मान दर्ज करें",
+                placeholderRainfall: "बारिश मान दर्ज करें",
+                recommendedCropText: "सिफारिश की गई फसल प्राप्त करें"
+            },
+            kn: {
+                cropRecTitle: "ಪಂಟ ಶಿಫಾರಸು ವ್ಯವಸ್ಥೆ",
+                cropRecDesc: "ನಿಮ್ಮ ಭೂಮಿಗೆ ಅತ್ಯುತ್ತಮವಾಗಿ ಹೊಂದಿರುವ ಪಂಟ ಪಡೆಯಲು ಅಗತ್ಯವಾದ ಮಣ್ಣು ಮತ್ತು ಪರಿಸರ ಡೇಟಾವನ್ನು ನಮೂದಿಸಿ.",
+                labelNitrogen: "ನೈಟ್ರೋಜನ್ (N)",
+                labelPhosphorus: "ಫಾಸ್ಫರಸ್ (P)",
+                labelPotassium: "ಪೊಟೇಶಿಯಂ (K)",
+                labelTemperature: "ತಾಪಮಾನ (°C)",
+                labelHumidity: "ಆರ್ದ್ರತ (%)",
+                labelPh: "pH",
+                labelRainfall: "ಮಳೆಯ (ಮಿಮೀ)",
+                placeholderNitrogen: "ನೈಟ್ರೋಜನ್ ಮೌಲ್ಯವನ್ನು ನಮೂದಿಸಿ",
+                placeholderPhosphorus: "ಫಾಸ್ಫರಸ್ ಮೌಲ್ಯವನ್ನು ನಮೂದಿಸಿ",
+                placeholderPotassium: "ಪೊಟೇಶಿಯಂ ಮೌಲ್ಯವನ್ನು ನಮೂದಿಸಿ",
+                placeholderTemperature: "ತಾಪಮಾನ ಮೌಲ್ಯವನ್ನು ನಮೂದಿಸಿ",
+                placeholderHumidity: "ಆರ್ದ್ರತ ಮೌಲ್ಯವನ್ನು ನಮೂದಿಸಿ",
+                placeholderPh: "pH ಮೌಲ್ಯವನ್ನು ನಮೂದಿಸಿ",
+                placeholderRainfall: "ಮಳೆಯ ಮೌಲ್ಯವನ್ನು ನಮೂದಿಸಿ",
+                recommendedCropText: "ಶಿಫಾರಸು ಮಾಡಿದ ಪಂಟ ಪಡೆಯಿರಿ"
+            }
+        };
+
+        // Function to change language
+        function changeLanguage(language) {
+            selectedLanguage = language;
+
+            // Update titles and labels
+            document.getElementById('cropRecTitle').textContent = translations[selectedLanguage].cropRecTitle;
+            document.getElementById('cropRecDesc').textContent = translations[selectedLanguage].cropRecDesc;
+            document.getElementById('labelNitrogen').textContent = translations[selectedLanguage].labelNitrogen;
+            document.getElementById('labelPhosphorus').textContent = translations[selectedLanguage].labelPhosphorus;
+            document.getElementById('labelPotassium').textContent = translations[selectedLanguage].labelPotassium;
+            document.getElementById('labelTemperature').textContent = translations[selectedLanguage].labelTemperature;
+            document.getElementById('labelHumidity').textContent = translations[selectedLanguage].labelHumidity;
+            document.getElementById('labelPh').textContent = translations[selectedLanguage].labelPh;
+            document.getElementById('labelRainfall').textContent = translations[selectedLanguage].labelRainfall;
+
+            // Update placeholders
+            document.getElementById('nitrogen').placeholder = translations[selectedLanguage].placeholderNitrogen;
+            document.getElementById('phosphorus').placeholder = translations[selectedLanguage].placeholderPhosphorus;
+            document.getElementById('potassium').placeholder = translations[selectedLanguage].placeholderPotassium;
+            document.getElementById('temperature').placeholder = translations[selectedLanguage].placeholderTemperature;
+            document.getElementById('humidity').placeholder = translations[selectedLanguage].placeholderHumidity;
+            document.getElementById('ph').placeholder = translations[selectedLanguage].placeholderPh;
+            document.getElementById('rainfall').placeholder = translations[selectedLanguage].placeholderRainfall;
+
+            // Update button text
+            document.getElementById('getRecommendedCropButton').textContent = translations[selectedLanguage].recommendedCropText;
+
+            // Hide the modal after selection
+            $('#languageModal').modal('hide');
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Check if the username and password match any account
+            if (accounts.some(account => account.username === username && account.password === password)) {
+                document.getElementById('loginCard').classList.add('d-none');
+                document.getElementById('cropRecommendationCard').classList.remove('d-none');
+                document.getElementById('cropForm').reset(); // Reset the crop form
+
+                // Show the language selection modal
+                $('#languageModal').modal('show');
+            } else {
+                document.getElementById('accountMessage').textContent = "Invalid username or password. Please try again.";
+            }
+        });
+
+        // Handle registration form submission
+        document.getElementById('registrationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const regUsername = document.getElementById('regUsername').value;
+            const regPassword = document.getElementById('regPassword').value;
+
+            // Check if username already exists
+            if (accounts.some(account => account.username === regUsername)) {
+                document.getElementById('registrationMessage').textContent = "Username already exists. Please choose another one.";
+            } else if (!validatePassword(regPassword)) {
+                document.getElementById('registrationMessage').textContent = "Password must be at least 8 characters long, contain at least one uppercase letter, one digit, and one special character (@#$%&*).";
+            } else {
+                // Add the new account to the accounts array
+                accounts.push({ username: regUsername, password: regPassword });
+                document.getElementById('registrationMessage').textContent = "Account created successfully! Please log in.";
+                // Clear the form
+                document.getElementById('registrationForm').reset();
+                
+                // Switch to login card
+                document.getElementById('registrationCard').classList.add('d-none');
+                document.getElementById('loginCard').classList.remove('d-none');
+            }
+        });
+
+        // Show registration form when "Register here" is clicked
+        document.getElementById('showRegistration').addEventListener('click', function() {
+            document.getElementById('loginCard').classList.add('d-none');
+            document.getElementById('registrationCard').classList.remove('d-none');
+            document.getElementById('accountMessage').textContent = ""; // Clear account message
+        });
+
+        // Function to validate password
+        function validatePassword(password) {
+            const regex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%&*])[A-Za-z\d@#$%&*]{8,}$/;
+            return regex.test(password);
+        }
+
+        // Handle crop form submission
+        document.getElementById('cropForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const nitrogen = document.getElementById('nitrogen').value;
+            const phosphorus = document.getElementById('phosphorus').value;
+            const potassium = document.getElementById('potassium').value;
+            const temperature = document.getElementById('temperature').value;
+            const humidity = document.getElementById('humidity').value;
+            const ph = document.getElementById('ph').value;
+            const rainfall = document.getElementById('rainfall').value;
+
+            // Make POST request to the server
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    N: nitrogen,
+                    P: phosphorus,
+                    K: potassium,
+                    temperature: temperature,
+                    humidity: humidity,
+                    ph: ph,
+                    rainfall: rainfall,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the recommended crop
+                document.getElementById('recommendedCrop').textContent = data.recommended_crop;
+                document.getElementById('resultCard').classList.remove('d-none');
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+
+    <!-- jQuery, Popper.js, Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
