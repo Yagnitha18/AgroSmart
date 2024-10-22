@@ -1,5 +1,4 @@
 import os
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -7,21 +6,22 @@ from sklearn.ensemble import RandomForestClassifier
 import pickle
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import psycopg2
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 
-# Database configuration
-db_config = {
-    'dbname': 'crop_recommendation_db',
-    'user': 'postgres',  # Your PostgreSQL username
-    'password': 'yagnitha',  # Your PostgreSQL password
-    'host': 'localhost',
-    'port': '5432'  # Default PostgreSQL port
-}
-
-# Function to get a database connection
+# Function to get a database connection dynamically
 def get_db_connection():
-    conn = psycopg2.connect(**db_config)
+    # Parse the DATABASE_URL environment variable
+    result = urlparse(os.getenv('DATABASE_URL'))
+    
+    conn = psycopg2.connect(
+        dbname=result.path[1:],  # Removes the leading '/' from the path
+        user=result.username,
+        password=result.password,
+        host=result.hostname,
+        port=result.port
+    )
     return conn
 
 # Load dataset
